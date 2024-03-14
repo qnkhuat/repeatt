@@ -50,11 +50,11 @@
 (defn with-nav-bar
   [children]
   [:div
-   [:nav {:class "navbar navbar-expand-lg bg-dark"}
-    [:div {:class "container-fluid"}
-     [:a {:class "navbar-brand text-light"
-          :href  "/"}
-      "Repeatt"]]]
+   [:div {:class "container-fluid bg-dark"
+          :style {:height "50px"}}
+    [:p {:class "navbar-brand text-light fs-4 text-center"
+         :style {:line-height "50px"}}
+     "Repeatt"]]
    children])
 
 (def ^:private bootstrap-css
@@ -87,8 +87,8 @@
     (when scripts?
       bootstrap-css)
     (when scripts? bootstrap-icon-css)
-    (when scripts? htmx-js)
-    [:script {:src "/static/app.js"}]]
+    #_(when scripts? htmx-js)
+    #_[:script {:src "/static/app.js"}]]
    [:body {:hx-boosted "true"}
     (cond-> children
       navbar?
@@ -97,9 +97,7 @@
       bootstrap-js)]])
 
 (defn html-response
-  "Given a children, render it as a whole page.
-
-  By defaul the rendered page will have htmx, bootstrap and a navbar."
+  "Given a children, render it as a whole page."
   [children & options]
   (hiccup->html-response (apply bare-html children options) (h.page/doctype :html5)))
 
@@ -108,26 +106,28 @@
   (let [[first-rel-path] (first rel-path->abs-path)]
     (html-response
      [:div {:class "container-fluid d-flex justify-content-center"}
-      [:div#audio-wrapper {:class "mt-5"}
-       [:audio#audio-player
-        {:controls true
-         :style "width: 500px;"}
-        [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]
-       [:p#audio-content {:class "text-center"}
-        (path->content first-rel-path)]
+      [:div
+       [:div#audio-wrapper {:class "mt-3"}
+        [:audio#audio-player
+         {:controls true
+          :style "width: 500px;"}
+         [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]
+        [:p#audio-content {:class "text-center mt-2"}
+         (path->content first-rel-path)]]
        [:div#audio-browser
-        {:class "mt-5"
-         :style "height: 800px; overflow: scroll"}
-        [:ul
-         (for [rel-path (keys rel-path->abs-path)]
-           [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}
-            [:button {:class "btn btn-primary me-2"
-                      :onclick (format "document.getElementById('audio-source').src = '%s';
-                                       document.getElementById('audio-content').innerHTML = '%s';
+         {:class "mt-5"
+          :style "height: 800px; overflow: scroll"}
+         [:ul
+          (for [rel-path (keys rel-path->abs-path)
+                :let [content (path->content rel-path)]]
+            [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}
+             [:button {:class "btn btn-primary me-2"
+                       :onclick (format "document.getElementById('audio-source').src = \"%s\";
+                                       document.getElementById('audio-content').innerHTML = \"%s\";
                                        document.getElementById('audio-player').load();"
-                                       (format "/audio/%s" rel-path)
-                                       (path->content rel-path))}
-             "play"] [:p {:class "m-0"} rel-path]])]]]])))
+                                        (format "/audio/%s" rel-path)
+                                        content)}
+              "play"] [:p {:class "m-0"} content]])]]]])))
 
 (compojure/defroutes app
   (compojure/GET "/" [] index)
