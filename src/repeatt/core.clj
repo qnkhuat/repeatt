@@ -13,8 +13,8 @@
 (assert (str/ends-with? audio-root "/"))
 (def ^:private audio-ext "**{.wav,.webm}")
 (def ^:private audio-files (fs/glob audio-root audio-ext))
-(def ^:private rel-path->audio-file (into {} (zipmap (map #(str/replace (str %) audio-root "") audio-files)
-                                                     audio-files)))
+(def ^:private rel-path->abs-path (into {} (zipmap (map #(str/replace (str %) audio-root "") audio-files)
+                                                   (map str audio-files))))
 
 (defn- path->content
   ;; content of an audio file is its filename
@@ -30,7 +30,7 @@
 (defn- multi-html-response?
   "Is x of this form
   [[:p 1]
-   [:p 2]]"
+  [:p 2]]"
   [x]
   (and (coll? x)
        (pos? (count x))
@@ -105,18 +105,33 @@
 
 (defn index
   [_req]
-  (let [[first-rel-path] (first rel-path->audio-file)]
-   (html-response
-    [:div.container-fluid.d-flex.justify-content-center
-     [:div#audio-wrapper
-      [:audio#audio-player
-       {:controls true}
-       [:source {:src (format "/audio/%s" first-rel-path)}]]
-      [:p#audio-content (path->content first-rel-path)]]])))
+  (let [[first-rel-path] (first rel-path->abs-path)]
+    (html-response
+     [:div {:class "container-fluid d-flex justify-content-center"}
+      [:div#audio-wrapper {:class "mt-5"}
+       [:audio#audio-player
+        {:controls true
+         :style "width: 500px;"}
+        [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]
+       [:p#audio-content {:class "text-center"}
+        (path->content first-rel-path)]
+       [:div#audio-browser
+        {:class "mt-5"
+         :style "height: 800px; overflow: scroll"}
+        [:ul
+         (for [rel-path (keys rel-path->abs-path)]
+           [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}
+            [:button {:class "btn btn-primary me-2"
+                      :onclick (format "document.getElementById('audio-source').src = '%s';
+                                       document.getElementById('audio-content').innerHTML = '%s';
+                                       document.getElementById('audio-player').load();"
+                                       (format "/audio/%s" rel-path)
+                                       (path->content rel-path))}
+             "play"] [:p {:class "m-0"} rel-path]])]]]])))
 
 (compojure/defroutes app
   (compojure/GET "/" [] index)
-  (compojure/GET "/audio/:file-name" [file-name] (response/file-response (str (get rel-path->audio-file file-name))))
+  (compojure/GET "/audio/:file-path" [file-path] (response/file-response (str (get rel-path->abs-path file-path))))
   (compojure-route/not-found "Page not found"))
 
 (defn -main
