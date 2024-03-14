@@ -3,6 +3,7 @@
  :deps
  {org.clojure/clojure                       {:mvn/version "1.11.2"}
   ;; webserver+routing
+  babashka/fs                               {:mvn/version "0.5.20"}
   compojure/compojure                       {:mvn/version "1.6.2"}
   ring/ring-core                            {:mvn/version "1.9.4"}
   ring/ring-jetty-adapter                   {:mvn/version "1.9.5"}

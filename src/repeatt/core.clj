@@ -1,5 +1,6 @@
 (ns repeatt.core
   (:require
+   [babashka.fs :as fs]
    [clojure.string :as str]
    [compojure.core :as compojure]
    [compojure.route :as compojure-route]
@@ -7,6 +8,24 @@
    [hiccup2.core :as h]
    [ring.adapter.jetty :as jetty]
    [ring.util.response :as response]))
+
+(def ^:private audio-root "/Users/earther/fun/repeatt/scripts/pUo8e1x3L6E/split_audio/")
+(assert (str/ends-with? audio-root "/"))
+(def ^:private audio-ext "**{.wav,.webm}")
+(def ^:private audio-files (fs/glob audio-root audio-ext))
+(def ^:private rel-path->audio-file (into {} (zipmap (map #(str/replace (str %) audio-root "") audio-files)
+                                                     audio-files)))
+
+(defn- path->content
+  ;; content of an audio file is its filename
+  [path]
+  (-> path
+      (str/split #"/")
+      last
+      ;; remove extension
+      (str/split #"\.")
+      drop-last
+      (->> (str/join "."))))
 
 (defn- multi-html-response?
   "Is x of this form
@@ -84,8 +103,20 @@
   [children & options]
   (hiccup->html-response (apply bare-html children options) (h.page/doctype :html5)))
 
+(defn index
+  [_req]
+  (let [[first-rel-path] (first rel-path->audio-file)]
+   (html-response
+    [:div.container-fluid.d-flex.justify-content-center
+     [:div#audio-wrapper
+      [:audio#audio-player
+       {:controls true}
+       [:source {:src (format "/audio/%s" first-rel-path)}]]
+      [:p#audio-content (path->content first-rel-path)]]])))
+
 (compojure/defroutes app
-  (compojure/GET "/" [] (html-response [:h1 "Welcome to the superior learning english experience"]))
+  (compojure/GET "/" [] index)
+  (compojure/GET "/audio/:file-name" [file-name] (response/file-response (str (get rel-path->audio-file file-name))))
   (compojure-route/not-found "Page not found"))
 
 (defn -main
