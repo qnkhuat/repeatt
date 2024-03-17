@@ -107,27 +107,24 @@
     (html-response
      [:div {:class "container-fluid d-flex justify-content-center"}
       [:div
+       [:div#audio-recorder {:class "mt-3"}
+        [:div {:class "w-100 d-flex justify-content-center mb-3"}
+         [:button#btn-do-record {:class   "btn btn-danger me-3"
+                                 :onclick "startRecording()"}
+          "Record"]
+         [:button#btn-stop-record {:class "btn btn-danger me-3"
+                                   :onclick "stopRecording()"}
+          "Stop"]]
+        [:audio#audio-recording {:class    "w-100 d-block"
+                                 :controls true}]]
        [:div#audio-wrapper {:class "mt-3"}
+        [:p#audio-content {:class "text-center mt-2"}
+                 (path->content first-rel-path)]
         [:audio#audio-player
          {:controls true
           :style "width: 500px;"}
-         [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]
-        [:p#audio-content {:class "text-center mt-2"}
-         (path->content first-rel-path)]]
-       [:div#audio-recorder
-        [:button#btn-play-record {:class "btn btn-primary"
-                                  :onclick "playRecording()"}
-         "Play recording"]
-        [:button#btn-do-record {:class "btn btn-danger"
-                                :onclick "startRecording()"}
-         "Record"]
-        [:button#btn-stop-record {:class "btn btn-danger"
-                                  :onclick "stopRecording()"}
-         "Stop"]
-        [:p#recording-timer {:class "recording-timer"}
-         "00:00"]
-        [:audio#audio-recording {:class    "d-none"
-                                 :controls true}]]
+         [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]]
+
        [:div#audio-browser
         {:class "mt-5"
          :style "height: 800px; overflow: scroll"}
