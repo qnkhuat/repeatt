@@ -1,8 +1,4 @@
 # repeatt
 Repeat with double t
 
-An application for repeating english sentences.
-Features:
-- [x] browse sentences
-- [x] play and stop each audio file
-- [x] record your voice and replay
+Practice your speaking skill by listen and repeat to native speakers
