@@ -87,14 +87,14 @@
     (when scripts?
       bootstrap-css)
     (when scripts? bootstrap-icon-css)
-    #_(when scripts? htmx-js)
-    #_[:script {:src "/static/app.js"}]]
+    #_(when scripts? htmx-js)]
    [:body {:hx-boosted "true"}
     (cond-> children
       navbar?
       with-nav-bar)
     (when scripts?
-      bootstrap-js)]])
+      bootstrap-js)
+    [:script {:src "/static/app.js"}]]])
 
 (defn html-response
   "Given a children, render it as a whole page."
@@ -114,24 +114,39 @@
          [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]
         [:p#audio-content {:class "text-center mt-2"}
          (path->content first-rel-path)]]
+       [:div#audio-recorder
+        [:button#btn-play-record {:class "btn btn-primary"
+                                  :onclick "playRecording()"}
+         "Play recording"]
+        [:button#btn-do-record {:class "btn btn-danger"
+                                :onclick "startRecording()"}
+         "Record"]
+        [:button#btn-stop-record {:class "btn btn-danger"
+                                  :onclick "stopRecording()"}
+         "Stop"]
+        [:p#recording-timer {:class "recording-timer"}
+         "00:00"]
+        [:audio#audio-recording {:class    "d-none"
+                                 :controls true}]]
        [:div#audio-browser
-         {:class "mt-5"
-          :style "height: 800px; overflow: scroll"}
-         [:ul
-          (for [rel-path (keys rel-path->abs-path)
-                :let [content (path->content rel-path)]]
-            [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}
-             [:button {:class "btn btn-primary me-2"
-                       :onclick (format "document.getElementById('audio-source').src = \"%s\";
+        {:class "mt-5"
+         :style "height: 800px; overflow: scroll"}
+        [:ul
+         (for [rel-path (keys rel-path->abs-path)
+               :let [content (path->content rel-path)]]
+           [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}
+            [:button {:class "btn btn-primary me-2"
+                      :onclick (format "document.getElementById('audio-source').src = \"%s\";
                                        document.getElementById('audio-content').innerHTML = \"%s\";
                                        document.getElementById('audio-player').load();"
-                                        (format "/audio/%s" rel-path)
-                                        content)}
-              "play"] [:p {:class "m-0"} content]])]]]])))
+                                       (format "/audio/%s" rel-path)
+                                       content)}
+             "play"] [:p {:class "m-0"} content]])]]]])))
 
 (compojure/defroutes app
   (compojure/GET "/" [] index)
-  (compojure/GET "/audio/:file-path" [file-path] (response/file-response (str (get rel-path->abs-path file-path))))
+  (compojure/GET "/audio/:file" [file] (response/file-response (str (get rel-path->abs-path file))))
+  (compojure/GET "/static/:file" [file] (response/resource-response (format "static/%s" file)))
   (compojure-route/not-found "Page not found"))
 
 (defn -main
