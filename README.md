@@ -5,4 +5,4 @@ An application for repeating english sentences.
 Features:
 - [x] browse sentences
 - [x] play and stop each audio file
-- [ ] record your voice and replay
+- [x] record your voice and replay
