@@ -52,8 +52,9 @@
   [:div
    [:div {:class "container-fluid bg-dark"
           :style {:height "50px"}}
-    [:p {:class "navbar-brand text-light fs-4 text-center"
-         :style {:line-height "50px"}}
+    [:a {:class "navbar-brand text-light fs-4 text-center d-block"
+         :style {:line-height "50px"}
+         :href  "https://github.com/qnkhuat/repeatt"}
      "Repeatt"]]
    children])
 
