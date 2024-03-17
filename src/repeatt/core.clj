@@ -1,4 +1,5 @@
 (ns repeatt.core
+  (:gen-class)
   (:require
    [babashka.fs :as fs]
    [clojure.string :as str]
@@ -9,7 +10,8 @@
    [ring.adapter.jetty :as jetty]
    [ring.util.response :as response]))
 
-(def ^:private audio-root (System/getenv "REPEATT_AUDIO_ROOT"))
+(def ^:private jetty-port (parse-long (or (System/getenv "REPEATT_JETTY_PORT") "3000")))
+(def ^:private audio-root (or (System/getenv "REPEATT_AUDIO_ROOT") "./"))
 (assert (str/ends-with? audio-root "/"))
 (def ^:private audio-ext "**{.wav,.webm}")
 (def ^:private audio-files (fs/glob audio-root audio-ext))
@@ -87,7 +89,7 @@
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
     (when scripts?
       bootstrap-css)
-    (when scripts? bootstrap-icon-css)
+    #_(when scripts? bootstrap-icon-css)
     #_(when scripts? htmx-js)]
    [:body {:hx-boosted "true"}
     (cond-> children
@@ -149,5 +151,6 @@
 
 (defn -main
   [& _args]
-  (jetty/run-jetty #'app {:port  3000
-                          :join? false}))
+  (jetty/run-jetty #'app {:port  jetty-port
+                          :join? false})
+  (println "Running at port:" jetty-port))

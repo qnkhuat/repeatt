@@ -27,6 +27,6 @@
   {:main-opts ["-m" "repeatt.core"]}
 
   ; clj -T:build repeatt
-  #_:build
-  #_{:deps       {io.github.clojure/tools.build {:git/tag "v0.9.2" :git/sha "fe6b140"}}
-     :ns-default build}}}
+  :build
+  {:deps       {io.github.clojure/tools.build {:git/tag "v0.9.2" :git/sha "fe6b140"}}
+   :ns-default build}}}
