@@ -9,7 +9,7 @@
    [ring.adapter.jetty :as jetty]
    [ring.util.response :as response]))
 
-(def ^:private audio-root "/Users/earther/fun/repeatt/scripts/pUo8e1x3L6E/split_audio/")
+(def ^:private audio-root (System/getenv "REPEATT_AUDIO_ROOT"))
 (assert (str/ends-with? audio-root "/"))
 (def ^:private audio-ext "**{.wav,.webm}")
 (def ^:private audio-files (fs/glob audio-root audio-ext))
