@@ -1,3 +1,11 @@
+"""
+This script takes a youtube url, download its audio and the english subtitle.
+Then it'll chop the audio into multiple small audio files, how it chops is according to the subtitle,
+Ideally you want a video that breaks sentences clearly, that's way each audio file is a complete sentence.
+The file name of the gerneated audio is the transcript text of that audio.
+
+python3 download_audio_and_split https://www.youtube.com/watch?v=0H1tm1SD7dA
+"""
 import os, re
 import pysrt
 from pydub import AudioSegment
@@ -60,6 +68,7 @@ def download_audio_and_subtitles(youtube_url):
   for track in (yt.vid_info.get("captions", {})
                 .get("playerCaptionsTracklistRenderer", {})
                 .get("captionTracks", [])):
+    # TODO: make sure it works with uploaded caption too
     if track["vssId"]== "a.en":
       yt_caption_path = MyCaption(track).download(title="subtitle", output_path=yt.video_id, srt=True)
   print("Downloaded subtitle at ", yt_caption_path)
