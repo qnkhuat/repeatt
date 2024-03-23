@@ -87,6 +87,8 @@
    [:head
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+    [:link {:rel "stylesheet"
+            :href "/static/app.css"}]
     (when scripts?
       bootstrap-css)
     #_(when scripts? bootstrap-icon-css)
@@ -109,7 +111,7 @@
   (let [[first-rel-path] (first rel-path->abs-path)]
     (html-response
      [:div {:class "container-fluid d-flex justify-content-center"}
-      [:div
+      [:div {:class "body-width"}
        [:div#audio-recorder {:class "mt-3"}
         [:div {:class "w-100 d-flex justify-content-center mb-3"}
          [:button#btn-do-record {:class   "btn btn-danger me-3"
@@ -125,13 +127,12 @@
                  (path->content first-rel-path)]
         [:audio#audio-player
          {:controls true
-          :style "width: 500px;"}
+          :class    "w-100"}
          [:source#audio-source {:src (format "/audio/%s" first-rel-path)}]]]
-
        [:div#audio-browser
         {:class "mt-5"
          :style "height: 800px; overflow: scroll"}
-        [:ul
+        [:ul {:class "p-0"}
          (for [rel-path (keys rel-path->abs-path)
                :let [content (path->content rel-path)]]
            [:li {:class "d-flex py-2" :style "height: 50px; align-items: center"}

@@ -1,0 +1,9 @@
+.body-width {
+  width: 600px;
+}
+
+@media screen and (max-width: 576px) {
+  .body-width {
+    width: 400px; /* New width for larger screens */
+  }
+}
